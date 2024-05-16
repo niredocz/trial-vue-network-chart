@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineConfigs } from "v-network-graph";
 import * as vNG from "v-network-graph";
-import { computed, ref } from "vue";
+import { computed, reactive, ref } from "vue";
 import Input from "../components/Input.vue";
 
 const convert = ["KTP", "KK", "BPJS", "NPWP", "Phone Number"];
@@ -18,6 +18,8 @@ type EdgeType = {
   [key: string]: {
     source: string
     target: string
+    label?: string
+    config?: any
   }
 }
 
@@ -43,19 +45,31 @@ const edges: EdgeType = {
 
 const layouts: LayoutsType = {
   nodes: {
-    node1: { x: 0, y: 0 },
-    node2: { x: 0, y: -150 },
-    node3: { x: 150, y: -150 },
-    node4: { x: 150, y: 0 },
-    node5: { x: 150, y: 150 },
-    node6: { x: 0, y: 150 },
-    node7: { x: -150, y: 150 },
-    node8: { x: -150, y: 0 },
-    node9: { x: -150, y: -150 },
+    node1: { x: 0, y: 0 },  // center
+    node2: { x: 0, y: -150 }, // top
+    node3: { x: 150, y: -150 }, // top-right
+    node4: { x: 150, y: 0 }, // right
+    node5: { x: 150, y: 150 },  // bottom-right
+    node6: { x: 0, y: 150 },  // bottom
+    node7: { x: -150, y: 150 }, // bottom-left
+    node8: { x: -150, y: 0 }, // left
+    node9: { x: -150, y: -150 },  // top-left
   },
 };
 
-const configs = defineConfigs({
+const nodes: NodeType = {
+  node1: { id: "node1", name: "317123456789004", color: "#56C9CA" },
+  node2: { id: "node2", name: "Eko Pujianto", color: "#D9E1E9" },
+  node3: { id: "node3", name: "Perempuan", color: "#D9E1E9" },
+  node4: { id: "node4", name: "Islam", color: "#D9E1E9" },
+  node5: { id: "node5", name: "WNI", color: "#D9E1E9" },
+  node6: { id: "node6", name: "Kalideres", color: "#D9E1E9" },
+  node7: { id: "node7", name: "317123456789004", color: "#F3DB89" },
+  node8: { id: "node8", name: "A9601796", color: "#F3DB89" },
+  node9: { id: "node9", name: "083866817535", color: "#F3DB89" },
+};
+
+const initialConfigs = defineConfigs({
   // node: {
   //   selectable: true,
   //   normal: {
@@ -100,6 +114,10 @@ const configs = defineConfigs({
         color: null,
       },
     },
+    label: {
+      color: "#000000",
+      fontSize: 14,
+    },
   },
   path: {
     normal: {
@@ -107,18 +125,6 @@ const configs = defineConfigs({
     }
   }
 });
-
-const nodes: NodeType = {
-  node1: { id: "node1", name: "317123456789004", color: "#56C9CA" },
-  node2: { id: "node2", name: "Eko Pujianto", color: "#D9E1E9" },
-  node3: { id: "node3", name: "Perempuan", color: "#D9E1E9" },
-  node4: { id: "node4", name: "Islam", color: "#D9E1E9" },
-  node5: { id: "node5", name: "WNI", color: "#D9E1E9" },
-  node6: { id: "node6", name: "Kalideres", color: "#D9E1E9" },
-  node7: { id: "node7", name: "317123456789004", color: "#F3DB89" },
-  node8: { id: "node8", name: "A9601796", color: "#F3DB89" },
-  node9: { id: "node9", name: "083866817535", color: "#F3DB89" },
-};
 
 function displayTextWidth(text: string) {
   const canvas = document.createElement("canvas");
@@ -145,6 +151,7 @@ function showContextMenu(element: HTMLElement, event: MouseEvent) {
   });
 }
 
+const configs = reactive(initialConfigs)
 const nodeMenu = ref<HTMLDivElement>();
 const menuTargetNode = ref("");
 const nodes_ref = ref(nodes)
@@ -175,13 +182,6 @@ const eventHandlers: vNG.EventHandlers = {
 const nextNodeIndex = computed(() => Object.keys(nodes_ref.value).length + 1);
 const nextEdgeIndex = computed(() => Object.keys(edges_ref.value).length + 1);
 
-// function generateRandomOffset(range: number) {
-//   return {
-//     x: Math.floor(Math.random() * range) - range / 2,
-//     y: Math.floor(Math.random() * range) - range / 2,
-//   };
-// }
-
 function generateRandomOffset(min: number, max: number) {
   const randomInRange = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
   const sign = () => (Math.random() < 0.5 ? -1 : 1);
@@ -197,7 +197,12 @@ function addNode(value: {
   name: string
   color: string
   target: string
-}, range: number) {
+  edges?: {
+    label: string
+    color: string
+  }
+  layout: { x: number, y: number }
+}) {
   const new_nodes = {
     ...nodes_ref.value,
     [value.id]: {
@@ -211,20 +216,17 @@ function addNode(value: {
     ...edges_ref.value,
     [value.id]: {
       source: value.id,
-      target: value.target
+      target: value.target,
+      label: value.id === 'node10' ? value.edges?.label : undefined
     }
   }
 
   const targetNodePosition: any = layouts_ref.value.nodes[value.target];
 
-  const offset = generateRandomOffset(100, range);
-
   const newNodePosition = {
-    x: targetNodePosition.x + offset.x,
-    y: targetNodePosition.y + offset.y,
+    x: targetNodePosition.x + (value.id === 'node10' ? -150 : value.layout.x),
+    y: targetNodePosition.y + (value.id === 'node10' ? -300 : value.layout.y),
   };
-
-  console.log('newNodePosition', newNodePosition)
 
   const new_layouts = {
     nodes: {
@@ -238,13 +240,80 @@ function addNode(value: {
   layouts_ref.value = new_layouts
 }
 
-const addNewNodes = () => {
-  addNode({
-    id: `node${nextNodeIndex.value}`,
-    name: "INI NODE BARU",
-    color: "#F3DB89",
-    target: `node9`,
-  }, 200)
+const addNewNodes = (context: string) => {
+  const new_nodes = [
+    {
+      id: `node10`,
+      name: "INI NODE BARU",
+      color: "#56C9CA",
+      target: `node9`,
+      layout: { x: 0, y: 0 },
+      edges: {
+        label: context,
+        color: "#347979"
+      },
+    },
+    {
+      id: `node11`,
+      name: "Eko Pujianto",
+      color: "#D9E1E9",
+      target: `node10`,
+      layout: { x: 0, y: -150 },
+    },
+    {
+      id: `node12`,
+      name: "Perempuan",
+      color: "#D9E1E9",
+      target: `node10`,
+      layout: { x: 150, y: -150 },
+    },
+    {
+      id: `node13`,
+      name: "Islam",
+      color: "#D9E1E9",
+      target: `node10`,
+      layout: { x: 150, y: 0 },
+    },
+    {
+      id: `node14`,
+      name: "WNI",
+      color: "#D9E1E9",
+      target: `node10`,
+      layout: { x: 150, y: 150 },
+    },
+    {
+      id: `node15`,
+      name: "Kalideres",
+      color: "#D9E1E9",
+      target: `node10`,
+      layout: { x: 0, y: 150 },
+    },
+    {
+      id: `node16`,
+      name: "317123456789004",
+      color: "#F3DB89",
+      target: `node10`,
+      layout: { x: -150, y: 150 },
+    },
+    {
+      id: `node17`,
+      name: "A9601796",
+      color: "#F3DB89",
+      target: `node10`,
+      layout: { x: -150, y: 0 },
+    },
+    {
+      id: `node19`,
+      name: "083866817535",
+      color: "#F3DB89",
+      target: `node10`,
+      layout: { x: -150, y: -150 },
+    }
+  ]
+
+  new_nodes.forEach(async (node) => {
+    await addNode(node)
+  })
 }
 
 const generateAxis = (node: any) => {
@@ -255,13 +324,14 @@ const generateAxis = (node: any) => {
 <template lang="pug">
 .w-full
   .flex.flex-col.gap-4
-    button(@click="addNewNodes" class="w-fit bg-blue-500 text-white px-4 py-2") Add New Node
     VNetworkGraph(class="graph" :nodes="nodes_ref" :edges="edges_ref" :layouts="layouts_ref" :configs="configs" :event-handlers="eventHandlers")
+      template(#edge-label="{edge, ...slopProps}")
+        v-edge-label(:text="edge.label" :config="edge.config" align="center" vertical-align="above" v-bind="slopProps")
 
   div(ref="nodeMenu" class="context-menu")
     Input
     .context-menu--options 
-      .context-menu--options--item(v-for="(item, key) in convert" :key="key" class="hover:text-[#202428] text-[#9FB3C8]")
+      .context-menu--options--item(v-for="(item, key) in convert" :key="key" class="hover:text-[#202428] text-[#9FB3C8]" @click="addNewNodes(`Passport to ${item}`)")
         span.font-bold Passport 
         span.font-normal to 
         span.font-bold {{ item }}
