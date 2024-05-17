@@ -14,6 +14,18 @@ type NodeType = {
   }
 }
 
+type Node = {
+  id: string
+  name: string
+  color: string
+  target: string
+  edges?: {
+    label: string
+    color: string
+  }
+  layout?: { x: number, y: number }
+}
+
 type EdgeType = {
   [key: string]: {
     source: string
@@ -192,17 +204,36 @@ function generateRandomOffset(min: number, max: number) {
   };
 }
 
-function addNode(value: {
-  id: string
-  name: string
-  color: string
-  target: string
-  edges?: {
-    label: string
-    color: string
+function generateLayouts(data: Node[]): LayoutsType {
+  const radius = 150  // Radius of the circle
+  const centerX = 0   // Center x-coordinate
+  const centerY = 0   // Center y-coordinate
+  const numberOfNodes = data.length
+  const angleStep = (2 * Math.PI) / (numberOfNodes - 1)  // Adjusted to distribute around the circle excluding the center node
+
+
+  const nodes: { [key: string]: { x: number, y: number } } = {
+    [data[0].id]: { x: centerX, y: centerY }  // center node
   }
-  layout: { x: number, y: number }
-}) {
+
+  for (let i = 0; i < numberOfNodes; i++) {
+    // const angle = (2 * Math.PI / numberOfNodes) * i
+    const angle = angleStep * i
+    const x = centerX + radius * Math.cos(angle)
+    const y = centerY + radius * Math.sin(angle)
+    const id = data[i].id  // Get the id from the data
+
+    nodes[id] = {
+      x: Math.round(x),
+      y: Math.round(y)
+    }
+  }
+
+
+  return { nodes }
+}
+
+function addNode(value: Node) {
   const new_nodes = {
     ...nodes_ref.value,
     [value.id]: {
@@ -224,8 +255,8 @@ function addNode(value: {
   const targetNodePosition: any = layouts_ref.value.nodes[value.target];
 
   const newNodePosition = {
-    x: targetNodePosition.x + (value.id === 'node10' ? -150 : value.layout.x),
-    y: targetNodePosition.y + (value.id === 'node10' ? -300 : value.layout.y),
+    x: targetNodePosition.x + (value.id === 'node10' ? -150 : value.layout?.x),
+    y: targetNodePosition.y + (value.id === 'node10' ? -300 : value.layout?.y),
   };
 
   const new_layouts = {
@@ -247,7 +278,6 @@ const addNewNodes = (context: string) => {
       name: "INI NODE BARU",
       color: "#56C9CA",
       target: `node9`,
-      layout: { x: 0, y: 0 },
       edges: {
         label: context,
         color: "#347979"
@@ -258,66 +288,59 @@ const addNewNodes = (context: string) => {
       name: "Eko Pujianto",
       color: "#D9E1E9",
       target: `node10`,
-      layout: { x: 0, y: -150 },
     },
     {
       id: `node12`,
       name: "Perempuan",
       color: "#D9E1E9",
       target: `node10`,
-      layout: { x: 150, y: -150 },
     },
     {
       id: `node13`,
       name: "Islam",
       color: "#D9E1E9",
       target: `node10`,
-      layout: { x: 150, y: 0 },
     },
     {
       id: `node14`,
       name: "WNI",
       color: "#D9E1E9",
       target: `node10`,
-      layout: { x: 150, y: 150 },
     },
     {
       id: `node15`,
       name: "Kalideres",
       color: "#D9E1E9",
       target: `node10`,
-      layout: { x: 0, y: 150 },
     },
     {
       id: `node16`,
       name: "317123456789004",
       color: "#F3DB89",
       target: `node10`,
-      layout: { x: -150, y: 150 },
     },
     {
       id: `node17`,
       name: "A9601796",
       color: "#F3DB89",
       target: `node10`,
-      layout: { x: -150, y: 0 },
     },
     {
-      id: `node19`,
+      id: `node18`,
       name: "083866817535",
       color: "#F3DB89",
       target: `node10`,
-      layout: { x: -150, y: -150 },
     }
   ]
 
   new_nodes.forEach(async (node) => {
-    await addNode(node)
-  })
-}
+    const new_layout = generateLayouts(new_nodes)
 
-const generateAxis = (node: any) => {
-  const { x, y } = node
+    await addNode({
+      ...node,
+      layout: new_layout.nodes[node.id]
+    })
+  })
 }
 </script>
 
