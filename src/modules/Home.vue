@@ -151,12 +151,14 @@ function showContextMenu(element: HTMLElement, event: MouseEvent) {
   element.style.left = event.x + "px";
   element.style.top = event.y + "px";
   element.style.visibility = "visible";
+
   const handler = (event: PointerEvent) => {
     if (!event.target || !element.contains(event.target as HTMLElement)) {
       element.style.visibility = "hidden";
       document.removeEventListener("pointerdown", handler, { capture: true });
     }
   };
+
   document.addEventListener("pointerdown", handler, {
     passive: true,
     capture: true,
@@ -165,6 +167,7 @@ function showContextMenu(element: HTMLElement, event: MouseEvent) {
 
 const configs = reactive(initialConfigs)
 const nodeMenu = ref<HTMLDivElement>();
+const targetNode = ref("");
 const menuTargetNode = ref("");
 const nodes_ref = ref(nodes)
 const edges_ref = ref(edges)
@@ -181,6 +184,7 @@ function showNodeContextMenu(params: vNG.NodeEvent<MouseEvent>) {
 
   if (nodeMenu.value) {
     menuTargetNode.value = nodes_ref.value[node].name ?? "";
+    targetNode.value = node;
     showContextMenu(nodeMenu.value, event);
   }
 }
@@ -248,15 +252,15 @@ function addNode(value: Node) {
     [value.id]: {
       source: value.id,
       target: value.target,
-      label: value.id === 'node10' ? value.edges?.label : undefined
+      label: value.edges ? value.edges?.label : undefined
     }
   }
 
   const targetNodePosition: any = layouts_ref.value.nodes[value.target];
 
   const newNodePosition = {
-    x: targetNodePosition.x + (value.id === 'node10' ? -150 : value.layout?.x),
-    y: targetNodePosition.y + (value.id === 'node10' ? -300 : value.layout?.y),
+    x: targetNodePosition.x + (value.edges ? (targetNodePosition.x * 2) : value.layout?.x),
+    y: targetNodePosition.y + (value.edges ? (targetNodePosition.y * 2) : value.layout?.y),
   };
 
   const new_layouts = {
@@ -277,7 +281,7 @@ const addNewNodes = (context: string) => {
       id: `node10`,
       name: "INI NODE BARU",
       color: "#56C9CA",
-      target: `node9`,
+      target: targetNode.value,
       edges: {
         label: context,
         color: "#347979"
