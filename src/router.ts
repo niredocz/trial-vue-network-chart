@@ -13,9 +13,25 @@ const router = createRouter({
 			}
 		},
     {
+      path: "/collapsible",
+      name: "collapsible-index",
+      component: () => import("./modules/Collapsible.vue"),
+			meta: {
+				layout: MainLayout
+			}
+		},
+    {
       path: "/d3-force",
       name: "d3-force-index",
       component: () => import("./modules/D3Force.vue"),
+			meta: {
+				layout: MainLayout
+			}
+    },
+    {
+      path: "/visjs",
+      name: "visjs-index",
+      component: () => import("./modules/Vis.vue"),
 			meta: {
 				layout: MainLayout
 			}
