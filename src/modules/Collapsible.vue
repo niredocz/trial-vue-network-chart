@@ -243,7 +243,7 @@ const selectedEdges = ref<string[]>([])
 function addNode() {
   const nodeId = `node${nextNodeIndex.value}`
   const name = `N${nextNodeIndex.value}`
-  nodes[nodeId] = { name }
+  // nodes[nodeId] = { name }
   nextNodeIndex.value++
 }
 

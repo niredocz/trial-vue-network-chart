@@ -1,4 +1,4 @@
-<script setup lang='ts'>
+<!-- <script setup lang='ts'>
 import D3Network from 'vue-d3-network'
 
 
@@ -6,4 +6,4 @@ import D3Network from 'vue-d3-network'
 
 <template lang='pug'>
 D3Network(ref='net' :net-nodes="nodes" :net-links="links" :options="options")
-</template>
+</template> -->
