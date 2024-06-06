@@ -5,6 +5,7 @@ export type VisNodesTypes = {
   title?: string
   x?: number
   y?: number
+  hidden?: boolean
 }
 
 export type VisEdgesTypes = {
@@ -15,6 +16,7 @@ export type VisEdgesTypes = {
   font?: {
     align: string
   }
+  hidden?: boolean
 }
 
 export type VisDataTypes = {

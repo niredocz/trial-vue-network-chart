@@ -40,7 +40,7 @@ const emit = defineEmits(["update:modelValue"]);
   input(
     :id="id" 
     :data-testid="id" 
-    :class="[error ? 'border-red-500' : 'border-neutral-500', 'border px-4 py-3 w-full rounded']"
+    :class="[error ? 'border-red-500' : 'border-neutral-500', 'border px-3 py-2 w-full rounded']"
     :placeholder="placeholder"
     :value="modelValue"
     :type="type"

@@ -31,7 +31,8 @@ const router = createRouter({
     {
       path: "/visjs",
       name: "visjs-index",
-      component: () => import("./modules/Vis.vue"),
+      // component: () => import("./modules/Vis.vue"),
+      component: () => import("./modules/ImportedVis.vue"),
 			meta: {
 				layout: MainLayout
 			}

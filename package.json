@@ -22,6 +22,7 @@
     "vue3-visjs": "^0.7.5"
   },
   "devDependencies": {
+    "@types/node": "^20.14.1",
     "@types/lodash": "^4.17.4",
     "@vitejs/plugin-vue": "^5.0.4",
     "autoprefixer": "^10.4.19",
